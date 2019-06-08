@@ -3,3 +3,5 @@
 /examples/*/build
 /examples/*/firmware
 .DS_Store
+
+examples/esp32/led_dim/main/\.vscode/ipch/
