@@ -32,8 +32,9 @@
 
 #include "wifi.h"
 #include "led.h"
+#include "co.h"
 
-#define NAME_DEF				"led dimmer"
+#define NAME_DEF				"ESP Homekit"
 #define MANUFACTURER_DEF		"Mart v Vliet"
 #define SERIAL_NUMBER_DEF		"029314578"
 #define MODEL_DEF				"V0.1"
@@ -42,7 +43,6 @@
 #define PASSWORD				"123-45-789"
 
 #define INVERTED_LED
-
 
 void 			on_wifi_ready(void);
 

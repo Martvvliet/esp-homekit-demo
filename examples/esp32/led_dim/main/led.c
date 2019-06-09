@@ -11,12 +11,12 @@
  ******************************************************************************
  */
 
+/* Includes ------------------------------------------------------------------*/
 #include "led.h"
 
 
-const int led_gpio = 2;
-uint8_t led_bright = 100;
-bool led_on = true;
+uint8_t ledBright = 100;
+bool ledOn = true;
 
 /*
  * Prepare and set configuration of timers
@@ -56,16 +56,12 @@ ledc_channel_config_t led_dim_channel = {
 void led_set(uint8_t bright) {
 	uint16_t dutyCycle;
 
-	if (led_on)
+	if (ledOn)
 		dutyCycle = (int)(INVMOD(bright)*2.56);
 	else 
 		dutyCycle = (int)(INVMOD(0)*2.56);
-	
 
-
-	printf("Current Brightness: %d\n", bright);
-	printf("Current Brightness: %f\n", (INVMOD(bright)*2.56));
-	printf("Current Brightness: %d\n", dutyCycle);
+	printf("Brightness: %d\n", bright);
 	
 	ledc_set_fade_with_time(led_dim_channel.speed_mode,
 		led_dim_channel.channel, dutyCycle, LED_FADE_TIME);
@@ -84,7 +80,7 @@ void led_init() {
 	// Initialize fade service.
     ledc_fade_func_install(0);
 
-    led_set(led_bright);
+    led_set(ledBright);
 }
 
 void led_identify_task(void *_args) {
@@ -95,7 +91,7 @@ void led_identify_task(void *_args) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
-    led_set(led_bright);
+    led_set(ledBright);
 
     vTaskDelete(NULL);
 }
@@ -106,7 +102,7 @@ void led_identify(homekit_value_t _value) {
 }
 
 homekit_value_t led_on_get() {
-    return HOMEKIT_BOOL(led_on);
+    return HOMEKIT_BOOL(ledOn);
 }
 
 void led_on_set(homekit_value_t value) {
@@ -116,13 +112,13 @@ void led_on_set(homekit_value_t value) {
     }
 
 	
-    led_on = value.bool_value;
+    ledOn = value.bool_value;
 
-	led_set(led_bright);
+	led_set(ledBright);
 }
 
 homekit_value_t led_bright_get() {
-    return HOMEKIT_INT(led_bright);
+    return HOMEKIT_INT(ledBright);
 }
 
 void led_bright_set(homekit_value_t value) {
@@ -131,6 +127,6 @@ void led_bright_set(homekit_value_t value) {
         return;
     }
 
-    led_bright = value.int_value;
-    led_set(led_bright);
+    ledBright = value.int_value;
+    led_set(ledBright);
 }

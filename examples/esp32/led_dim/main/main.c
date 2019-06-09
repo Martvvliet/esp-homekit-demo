@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file           	main.c
+ * @file        main.c
  *
- * @author 			Mart van Vliet
- * @date 			08 June 2019
+ * @author      Mart van Vliet
+ * @date        08 June 2019
  * @brief
  ******************************************************************************
  **
@@ -11,8 +11,8 @@
  ******************************************************************************
  */
 
+/* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 
 homekit_accessory_t *accessories[] = {
     HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_other, .services=(homekit_service_t*[]){
@@ -26,7 +26,7 @@ homekit_accessory_t *accessories[] = {
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, NAME_DEF),
+            HOMEKIT_CHARACTERISTIC(NAME, NAME_LED),
             HOMEKIT_CHARACTERISTIC(
                 ON, true,
                 .getter=led_on_get,
@@ -37,6 +37,12 @@ homekit_accessory_t *accessories[] = {
                 .getter=led_bright_get,
                 .setter=led_bright_set
             ),
+            NULL
+        }),
+        HOMEKIT_SERVICE(AIR_QUALITY_SENSOR, .characteristics=(homekit_characteristic_t*[]){
+            HOMEKIT_CHARACTERISTIC(NAME, NAME_CO2),
+            &airQuality,
+            // &co2Sensor,
             NULL
         }),
         NULL
@@ -110,4 +116,5 @@ void app_main(void) {
 
     wifi_init();
     led_init();
+    air_quality_init();
 }

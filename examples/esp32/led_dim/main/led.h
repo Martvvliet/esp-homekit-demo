@@ -1,9 +1,9 @@
 /**
  ******************************************************************************
- * @file           	led.h
+ * @file		led.h
  *
- * @author 			Mart van Vliet
- * @date 			08 June 2019
+ * @author		Mart van Vliet
+ * @date		08 June 2019
  * @brief
  ******************************************************************************
  **
@@ -16,14 +16,13 @@
 #define __LED_H__
 
 /* Includes ------------------------------------------------------------------*/
-
 #include "main.h"
 
 
 
 
 /* Defines -------------------------------------------------------------------*/
-#define NAME_DEF				"led dimmer"
+#define NAME_LED				"Led Dimmer"
 
 #define LED_TIMER          		LEDC_TIMER_0
 #define LED_MODE          		LEDC_HIGH_SPEED_MODE
