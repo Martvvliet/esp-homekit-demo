@@ -42,7 +42,7 @@ homekit_accessory_t *accessories[] = {
         HOMEKIT_SERVICE(AIR_QUALITY_SENSOR, .characteristics=(homekit_characteristic_t*[]){
             HOMEKIT_CHARACTERISTIC(NAME, NAME_CO2),
             &airQuality,
-            // &co2Sensor,
+            &co2Sensor,
             NULL
         }),
         NULL

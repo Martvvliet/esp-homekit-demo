@@ -31,8 +31,8 @@ extern homekit_characteristic_t co2Sensor;
 extern void 	air_quality_init	(void);
 void 			air_quality_task	(void *_args);
 void 			air_quality_identify(homekit_value_t _value);
-homekit_value_t air_get				(void);
-homekit_value_t co2_get				(void);
+int 			air_quality_get		(int CO2Value);
+float 			co2_sensor_get		(void);
 
 
 #endif /* __CO_H__ */
