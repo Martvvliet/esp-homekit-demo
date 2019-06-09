@@ -1,41 +1,41 @@
 /**
-  ******************************************************************************
-  * @file           	main.c
-  *
-  * @author 			Mart van Vliet
-  * @date 				08 June 2019
-  * @brief
-  ******************************************************************************
-  **
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           	main.c
+ *
+ * @author 			Mart van Vliet
+ * @date 			08 June 2019
+ * @brief
+ ******************************************************************************
+ **
+ *
+ ******************************************************************************
+ */
 
 #include "main.h"
 
 
-homekit_server_config_t config = {
-    .accessories = accessories,
-    .password = "111-11-111"
-};
-
 homekit_accessory_t *accessories[] = {
-    HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_lightbulb, .services=(homekit_service_t*[]){
+    HOMEKIT_ACCESSORY(.id=1, .category=homekit_accessory_category_other, .services=(homekit_service_t*[]){
         HOMEKIT_SERVICE(ACCESSORY_INFORMATION, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Sample LED"),
-            HOMEKIT_CHARACTERISTIC(MANUFACTURER, "HaPK"),
-            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, "037A2BABF19D"),
-            HOMEKIT_CHARACTERISTIC(MODEL, "MyLED"),
-            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, "0.1"),
+            HOMEKIT_CHARACTERISTIC(NAME, NAME_DEF),
+            HOMEKIT_CHARACTERISTIC(MANUFACTURER, MANUFACTURER_DEF),
+            HOMEKIT_CHARACTERISTIC(SERIAL_NUMBER, SERIAL_NUMBER_DEF),
+            HOMEKIT_CHARACTERISTIC(MODEL, MODEL_DEF),
+            HOMEKIT_CHARACTERISTIC(FIRMWARE_REVISION, FIRMWARE_REVISION_DEF),
             HOMEKIT_CHARACTERISTIC(IDENTIFY, led_identify),
             NULL
         }),
         HOMEKIT_SERVICE(LIGHTBULB, .primary=true, .characteristics=(homekit_characteristic_t*[]){
-            HOMEKIT_CHARACTERISTIC(NAME, "Sample LED"),
+            HOMEKIT_CHARACTERISTIC(NAME, NAME_DEF),
             HOMEKIT_CHARACTERISTIC(
-                ON, false,
+                ON, true,
                 .getter=led_on_get,
                 .setter=led_on_set
+            ),
+            HOMEKIT_CHARACTERISTIC(
+                BRIGHTNESS, 100,
+                .getter=led_bright_get,
+                .setter=led_bright_set
             ),
             NULL
         }),
@@ -43,6 +43,13 @@ homekit_accessory_t *accessories[] = {
     }),
     NULL
 };
+
+
+homekit_server_config_t config = {
+    .accessories = accessories,
+    .password = PASSWORD
+};
+
 
 esp_err_t event_handler(void *ctx, system_event_t *event)
 {
@@ -89,6 +96,8 @@ static void wifi_init() {
 void on_wifi_ready() {
     homekit_server_init(&config);
 }
+
+
 
 void app_main(void) {
     // Initialize NVS
