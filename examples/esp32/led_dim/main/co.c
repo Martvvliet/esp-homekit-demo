@@ -25,6 +25,8 @@ uart_config_t uart_config = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE
 };
 
+QueueHandle_t uart_queue;
+
 void air_quality_identify(homekit_value_t _value) {
     printf("Air Quality identify\n");
 }
@@ -53,13 +55,13 @@ void air_quality_task (void *_args) {
 
 void air_quality_init () {
 
-	// uart_param_config(UART_NUM_CO, &uart_config);
+	uart_param_config(UART_NUM_CO, &uart_config);
 	
-	// /* Set UART pins (using UART0 default pins ie no changes.) */
-    // ESP_ERROR_CHECK(uart_set_pin(UART_NUM_CO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+	/* Set UART pins (using UART0 default pins ie no changes.) */
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_CO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
-    // /* Install UART driver, and get the queue. */
-    // uart_driver_install(UART_NUM_CO, BUF_SIZE, BUF_SIZE, 20, NULL, 0);
+    /* Install UART driver, and get the queue. */
+    uart_driver_install(UART_NUM_CO, BUF_SIZE, 0, 10, NULL, 0);
 
     xTaskCreate(air_quality_task, "Air Quality Sensor", 5012, NULL, 2, NULL);
 }
@@ -83,28 +85,33 @@ int air_quality_get (int CO2Value){
 float co2_sensor_get (void){
 
 	uint8_t command[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-	uint8_t response[9] = {0};
+	uint8_t response[20] = {0};
 	int length = 0;
 
-	uart_write_bytes(UART_NUM_CO, (const char*)command, strlen((const char*)command));
+	if (uart_tx_chars(UART_NUM_CO, (char*)command, 9)) != 9) {
+		printf("Error sending UART data");
+		return -1;
+	}
+
+	// ESP_ERROR_CHECK(uart_wait_tx_done(UART_NUM_CO, 100)); // wait timeout is 100 RTOS ticks (TickType_t)
 
 	ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_CO, (size_t*)&length));
-	length = uart_read_bytes(UART_NUM_CO, response, length, 100);
+	length = uart_read_bytes(UART_NUM_CO, response, length, 1000);
 
-	printf("{0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X}\n", (char)response[0], (char)response[1], (char)response[2], (char)response[3], (char)response[4], (char)response[5], (char)response[6], (char)response[7], (char)response[8]);
+	if (length)
+		printf("{0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X}\n", 
+		(char)response[0], (char)response[1], (char)response[2], (char)response[3], (char)response[4], (char)response[5], (char)response[6], (char)response[7], (char)response[8]);
 
 	/* Check if response is valid */
-	if (response[0] != 0xFF) 
+	if (response[0] != 0xFF || response[1] != 0x86) {
+		uart_flush(UART_NUM_CO);
 		return -1;
-	
-	if (response[1] != 0x86) 
-		return -1;
-	
+	}	
 
 	int ppm = (256 * response[2]) + response[3];
-	int temp = response[4]-40;
-	byte status = response[5];
-	int minimum = (256 * response[6]) + response[7];
+	// int temp = response[4]-40;
+	// byte status = response[5];
+	// int minimum = (256 * response[6]) + response[7];
 
     return ppm;
 }
