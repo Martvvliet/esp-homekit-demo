@@ -15,7 +15,9 @@
 #ifndef __MAIN_H__
 #define __MAIN_H__
 
+/* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
+#include <string.h>
 #include <esp_wifi.h>
 #include <esp_event_loop.h>
 #include <esp_log.h>
@@ -23,6 +25,7 @@
 #include <nvs_flash.h>
 
 #include "driver/ledc.h"
+#include "driver/uart.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -34,6 +37,7 @@
 #include "led.h"
 #include "co.h"
 
+/* Defines -------------------------------------------------------------------*/
 #define NAME_DEF				"ESP Homekit"
 #define MANUFACTURER_DEF		"Mart v Vliet"
 #define SERIAL_NUMBER_DEF		"029314578"
@@ -42,8 +46,9 @@
 
 #define PASSWORD				"123-45-789"
 
-#define INVERTED_LED
+// #define INVERTED_LED
 
+/* Function prototypes -------------------------------------------------------*/
 void 			on_wifi_ready(void);
 
 #endif /* __MAIN_H__ */

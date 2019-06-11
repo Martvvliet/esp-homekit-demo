@@ -20,7 +20,10 @@
 
 
 /* Defines -------------------------------------------------------------------*/
-#define NAME_CO2				"Air quality"
+#define NAME_CO2			"Air quality"
+
+#define UART_NUM_CO			UART_NUM_2
+#define BUF_SIZE		   (1024 * 2)
 
 /* Extern declare ------------------------------------------------------------*/
 extern homekit_characteristic_t airQuality;
