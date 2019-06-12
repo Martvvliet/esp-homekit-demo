@@ -55,13 +55,13 @@ void air_quality_task (void *_args) {
 
 void air_quality_init () {
 
-	uart_param_config(UART_NUM, &uart_config);
+	uart_param_config(UART1_NUM, &uart_config);
 	
 	/* Set UART pins (using UART0 default pins ie no changes.) */
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, UART_TX_PIN, UART_RX_PIN, UART_RTS_PIN, UART_CTS_PIN));
+    ESP_ERROR_CHECK(uart_set_pin(UART1_NUM, UART1_TX_PIN, UART1_RX_PIN, UART1_RTS_PIN, UART1_CTS_PIN));
 
     /* Install UART driver, and get the queue. */
-    uart_driver_install(UART_NUM, BUF_SIZE, BUF_SIZE, 10, NULL, 0);
+    uart_driver_install(UART1_NUM, BUF_SIZE, BUF_SIZE, 10, NULL, 0);
 
     xTaskCreate(air_quality_task, "Air Quality Sensor", 5012, NULL, 2, NULL);
 }
@@ -87,26 +87,17 @@ float co2_sensor_get (void){
 	uint8_t command[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
 	uint8_t response[9];
 
-	// if (uart_tx_chars(UART_NUM, (char*)command, 9) != 9) {
-	// 	printf("Error sending UART data");
-	// 	return -1;
-	// }
-	if (uart_write_bytes(UART_NUM, (char*)command, 9) != 9) {
+	if (uart_write_bytes(UART1_NUM, (char*)command, 9) != 9) {
 		printf("Error sending UART data");
 		return -1;
 	}
 
 	vTaskDelay(500 / portTICK_PERIOD_MS);
-	// ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM, (size_t*)&length));
-	uart_read_bytes(UART_NUM, response, 9, 10/portTICK_RATE_MS);
-
-	// if (length)
-		// printf("{0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X}\n", 
-		// (char)response[0], (char)response[1], (char)response[2], (char)response[3], (char)response[4], (char)response[5], (char)response[6], (char)response[7], (char)response[8]);
+	uart_read_bytes(UART1_NUM, response, 9, 10/portTICK_RATE_MS);
 
 	/* Check if response is valid */
 	if (response[0] != 0xFF || response[1] != 0x86) {
-		uart_flush(UART_NUM);
+		uart_flush(UART1_NUM);
 		return -1;
 	}	
 
@@ -114,6 +105,5 @@ float co2_sensor_get (void){
 	// int temp = response[4]-40;
 	// byte status = response[5];
 	// int minimum = (256 * response[6]) + response[7];
-
     return ppm;
 }
