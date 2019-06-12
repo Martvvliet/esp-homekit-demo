@@ -22,7 +22,11 @@
 /* Defines -------------------------------------------------------------------*/
 #define NAME_CO2			"Air quality"
 
-#define UART_NUM_CO			UART_NUM_2
+#define UART_NUM			UART_NUM_1
+#define UART_TX_PIN			GPIO_NUM_4
+#define UART_RX_PIN			GPIO_NUM_5
+#define UART_RTS_PIN		UART_PIN_NO_CHANGE
+#define UART_CTS_PIN		UART_PIN_NO_CHANGE
 #define BUF_SIZE		   (1024 * 2)
 
 /* Extern declare ------------------------------------------------------------*/

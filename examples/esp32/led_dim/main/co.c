@@ -38,8 +38,8 @@ void air_quality_task (void *_args) {
 	float	CO2Value = -1;
 
     while (1) {
-		// CO2Value = co2_sensor_get();
-		CO2Value = 600;
+		CO2Value = co2_sensor_get();
+		// CO2Value = 600;
 
         airQualityValue = air_quality_get((int)CO2Value);
 
@@ -55,19 +55,19 @@ void air_quality_task (void *_args) {
 
 void air_quality_init () {
 
-	uart_param_config(UART_NUM_CO, &uart_config);
+	uart_param_config(UART_NUM, &uart_config);
 	
 	/* Set UART pins (using UART0 default pins ie no changes.) */
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_CO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_set_pin(UART_NUM, UART_TX_PIN, UART_RX_PIN, UART_RTS_PIN, UART_CTS_PIN));
 
     /* Install UART driver, and get the queue. */
-    uart_driver_install(UART_NUM_CO, BUF_SIZE, 0, 10, NULL, 0);
+    uart_driver_install(UART_NUM, BUF_SIZE, BUF_SIZE, 10, NULL, 0);
 
     xTaskCreate(air_quality_task, "Air Quality Sensor", 5012, NULL, 2, NULL);
 }
 
 int air_quality_get (int CO2Value){
-	printf("CO2 Value: %d\n", CO2Value);
+	// printf("CO2 Value: %d\n", CO2Value);
 	if (CO2Value <= 0)
 		return 0; 
 	else if (CO2Value <= 600)
@@ -85,26 +85,28 @@ int air_quality_get (int CO2Value){
 float co2_sensor_get (void){
 
 	uint8_t command[9] = {0xFF, 0x01, 0x86, 0x00, 0x00, 0x00, 0x00, 0x00, 0x79};
-	uint8_t response[20] = {0};
-	int length = 0;
+	uint8_t response[9];
 
-	if (uart_tx_chars(UART_NUM_CO, (char*)command, 9)) != 9) {
+	// if (uart_tx_chars(UART_NUM, (char*)command, 9) != 9) {
+	// 	printf("Error sending UART data");
+	// 	return -1;
+	// }
+	if (uart_write_bytes(UART_NUM, (char*)command, 9) != 9) {
 		printf("Error sending UART data");
 		return -1;
 	}
 
-	// ESP_ERROR_CHECK(uart_wait_tx_done(UART_NUM_CO, 100)); // wait timeout is 100 RTOS ticks (TickType_t)
+	vTaskDelay(500 / portTICK_PERIOD_MS);
+	// ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM, (size_t*)&length));
+	uart_read_bytes(UART_NUM, response, 9, 10/portTICK_RATE_MS);
 
-	ESP_ERROR_CHECK(uart_get_buffered_data_len(UART_NUM_CO, (size_t*)&length));
-	length = uart_read_bytes(UART_NUM_CO, response, length, 1000);
-
-	if (length)
-		printf("{0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X}\n", 
-		(char)response[0], (char)response[1], (char)response[2], (char)response[3], (char)response[4], (char)response[5], (char)response[6], (char)response[7], (char)response[8]);
+	// if (length)
+		// printf("{0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X, 0x%X}\n", 
+		// (char)response[0], (char)response[1], (char)response[2], (char)response[3], (char)response[4], (char)response[5], (char)response[6], (char)response[7], (char)response[8]);
 
 	/* Check if response is valid */
 	if (response[0] != 0xFF || response[1] != 0x86) {
-		uart_flush(UART_NUM_CO);
+		uart_flush(UART_NUM);
 		return -1;
 	}	
 
